@@ -7,16 +7,14 @@ def windows(img_height, img_width, crop_height, crop_width, stride_height, strid
     """
     # Calculate padding for height and width. Cropping is not always exact, so we calculate
     # the exact amount of padding we are taking in consideration.
-    height_pad = int(crop_height + np.ceil((img_height - crop_height) /
-                                            stride_height) * stride_height) - img_height
-    width_pad = int(crop_width + np.ceil((img_width - crop_width) /
-                                            stride_width) * stride_width) - img_width
+    height_pad = int(crop_height + np.ceil((img_height - crop_height) / stride_height) * stride_height) - img_height
+    width_pad = int(crop_width + np.ceil((img_width - crop_width) / stride_width) * stride_width) - img_width
 
     # Calculate number of crops along height and width
     crops_per_row = 1 + \
-        int((img_height + height_pad - crop_height) / stride_height)
+        int((img_height + height_pad - stride_height) / stride_height)
     crops_per_col = 1 + \
-        int((img_width + width_pad - crop_width) / stride_width)
+        int((img_width + width_pad - stride_width) / stride_width)
 
     windows = []
     for i in range(crops_per_row):
@@ -27,8 +25,6 @@ def windows(img_height, img_width, crop_height, crop_width, stride_height, strid
                             img_height - i*stride_height)
             width = min(crop_width, img_width -
                         j*stride_width)
-            
-
 
             windows.append(
                 {
@@ -40,3 +36,9 @@ def windows(img_height, img_width, crop_height, crop_width, stride_height, strid
             )
 
     return windows
+
+if "__main__" in __name__:
+    print(windows(511, 511, 510, 510, 510, 510))
+    print(len(windows(1024, 1024, 512, 512, 256, 256)))
+    print(len(windows(1024, 1024, 512, 512, 512, 512)))
+    print(len(windows(1024, 1024, 128, 128, 768, 768)))
