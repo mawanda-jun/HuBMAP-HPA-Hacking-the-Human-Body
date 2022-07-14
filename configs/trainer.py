@@ -18,17 +18,17 @@ optimizer = dict(
         custom_keys=dict(
             pos_block=dict(decay_mult=0.0),
             norm=dict(decay_mult=0.0),
-            head=dict(lr_mult=10.0))))
+            head=dict(lr_mult=1.0))))
 
 lr_config = dict(
     policy='poly',
     warmup='linear',
     warmup_iters=50,
-    warmup_ratio=1e-06,
+    warmup_ratio=1e-07,
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
-runner = dict(type='IterBasedRunner', max_iters=4000)
+runner = dict(type='IterBasedRunner', max_iters=2000)
 checkpoint_config = dict(by_epoch=False, interval=45)
 evaluation = dict(interval=45, metric='mDice', pre_eval=True)
 

@@ -4,16 +4,27 @@ img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
 
 # Pipelines
 train_pipeline = [
-    dict(type="RandomMosaic", prob=0.5, img_scale=(2048, 2048)),
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations'),
+    dict(type="RandomMosaic", prob=0.5, img_scale=(4096, 4096)),
     dict(type='Resize', img_scale=crop_size, ratio_range=(0.5, 2.0)),
     dict(type='RandomCrop', crop_size=(1024, 1024), cat_max_ratio=0.75),
     dict(type='RandomRotate', prob=0.5, degree=(0, 180)),
     dict(type='RandomFlip', prob=0.5, direction='horizontal'),
     dict(type='RandomFlip', prob=0.5, direction='vertical'),
-    dict(type="RandomCutOut", prob=0.5, n_holes=(1, 10), cutout_shape=(0, 3)),
+    # dict(type="RandomCutOut", prob=0.5, n_holes=(1, 10), cutout_shape=(0, 3)),
     dict(type='PhotoMetricDistortion'),
     dict(type='Normalize', **img_norm_cfg),
-    dict(type='Pad', size=(1024, 1024), pad_val=0, seg_pad_val=255),
+    # dict(type='Pad', size=(1024, 1024), pad_val=0, seg_pad_val=255),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_semantic_seg'])
+]
+val_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations'),
+    dict(type='Resize', img_scale=crop_size, ratio_range=(1, 1)),
+    dict(type='RandomFlip', prob=0.5),
+    dict(type='Normalize', **img_norm_cfg),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_semantic_seg'])
 ]
@@ -59,7 +70,7 @@ data = dict(
     samples_per_gpu=7,
     workers_per_gpu=8,
     # train=dict(
-    #     type="MultiImageMixDataset",
+    #     type=dataset_type,
     #     data_root=data_root,
     #     classes=classes,
     #     img_dir='img_dir/train',
@@ -80,7 +91,7 @@ data = dict(
             seg_map_suffix=".png",
             pipeline=[
                 dict(type='LoadImageFromFile'),
-                dict(type='LoadAnnotations')
+                dict(type='LoadAnnotations'),
             ],
         ),
         pipeline=train_pipeline
@@ -93,7 +104,7 @@ data = dict(
         ann_dir='ann_dir/val',
         img_suffix=".png",
         seg_map_suffix=".png",
-        pipeline=test_pipeline
+        pipeline=val_pipeline
     ),
     test=dict(
         type=dataset_type,
