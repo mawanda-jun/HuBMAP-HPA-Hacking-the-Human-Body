@@ -1,4 +1,4 @@
-_base_ = ['./dataset_512.py', './trainer.py']
+_base_ = ['./dataset_512.py', './upernet_trainer.py']
 
 # model settings
 norm_cfg = dict(type='SyncBN', requires_grad=True)
@@ -27,7 +27,11 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='LovaszLoss', 
+            loss_type="multi_class", 
+            loss_weight=1.0,
+            reduction="none")
+        ),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=1024,
@@ -40,7 +44,11 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+           type='LovaszLoss', 
+           loss_type="multi_class", 
+           loss_weight=0.4,
+           reduction="none")
+        ),
     # model training and testing settings
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))

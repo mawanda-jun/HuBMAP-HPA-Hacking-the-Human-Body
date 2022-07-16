@@ -30,8 +30,11 @@ lr_config = dict(
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
+
+fp16_enabled = True  # TODO: check this out!
+
 runner = dict(type='IterBasedRunner', max_iters=minibatches * 20)
-checkpoint_config = dict(by_epoch=False, interval=minibatches)
+checkpoint_config = dict(by_epoch=False, interval=minibatches*2)
 evaluation = dict(interval=minibatches, metric='mDice', pre_eval=True)
 
 gpu_ids = range(0, 1)
