@@ -30,7 +30,7 @@ thedevastator_albu_transforms = [  # Inspired from here: https://www.kaggle.com/
          ], p=1),
     dict(
         type='ShiftScaleRotate',
-        shift_limit=0.0625,
+        shift_limit=0.2,
         scale_limit=0.2,
         rotate_limit=15,
         interpolation=1,
@@ -39,7 +39,7 @@ thedevastator_albu_transforms = [  # Inspired from here: https://www.kaggle.com/
     dict(type="OneOf",
          transforms=[
              dict(type="PiecewiseAffine", p=.3),
-             dict(type="GridDistortion", p=.1),
+             dict(type="GridDistortion", p=.3),
              dict(type="OpticalDistortion", p=0.3),
          ], p=0.3),
     dict(type="RandomGamma", p=0.1),
@@ -52,14 +52,15 @@ thedevastator_albu_transforms = [  # Inspired from here: https://www.kaggle.com/
                 r_shift_limit=20,
                 g_shift_limit=20,
                 b_shift_limit=20,
-                p=0.5),
+                p=0.3),
             dict(
                 type='HueSaturationValue',
                 hue_shift_limit=10,
                 sat_shift_limit=15,
-                val_shift_limit=10),
+                val_shift_limit=10,
+                p=0.3),
 
-            dict(type="CLAHE", clip_limit=2),
+            dict(type="CLAHE", clip_limit=2, p=0.3),
         ],
         p=0.3),
     dict(type='ChannelShuffle', p=0.1),
@@ -161,7 +162,7 @@ train_pipeline = [
 val_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', img_scale=crop_size, ratio_range=(1.)),
+    dict(type='Resize', img_scale=crop_size, ratio_range=(1., 1.)),
     dict(type='RandomFlip', prob=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='DefaultFormatBundle'),
@@ -202,7 +203,8 @@ test_pipeline = [
 
 # Define datasets
 dataset_type = 'CustomDataset'
-data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512'
+data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain_inverted'
+# data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512'
 # data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_512'
 classes = ('organ', )
 
