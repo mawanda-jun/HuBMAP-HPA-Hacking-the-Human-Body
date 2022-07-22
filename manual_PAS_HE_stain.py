@@ -33,9 +33,6 @@ def stain_img(input_img):
             ann_path = input_img.replace("img", "ann")
             os.remove(ann_path)
 
-            
-
-
 def prepare_folders(input_dir, output_dir):
     in_train_img = os.path.join(input_dir, "img_dir", "train", "organ")
     in_val_img = os.path.join(input_dir, "img_dir", "val", "organ")

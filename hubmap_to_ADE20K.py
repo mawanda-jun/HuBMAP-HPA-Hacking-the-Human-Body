@@ -49,7 +49,7 @@ def cut_and_save(
                 # cv2.imwrite(output_ann_path, cropped_mask)
 
 
-def main():
+def main(base_path):
     crop_configurations = [
         [512, 512, 256, 256],
         [640, 640, 320, 320],
@@ -69,7 +69,6 @@ def main():
 
     for_val = [*kidney, *prostate, *largeintestine, *spleen, *lung]
 
-    base_path = "/home/mawanda/Documents/HuBMAP/"
     if len(crop_configurations) > 1:
         output_dir = os.path.join(base_path, f'for_mmdetection_multires_{crop_configurations[0][0]}')
     else:
@@ -124,4 +123,5 @@ def main():
 
 
 if "__main__" in __name__:
-    main()
+    base_path = "/home/mawanda/Documents/HuBMAP/"
+    main(base_path)

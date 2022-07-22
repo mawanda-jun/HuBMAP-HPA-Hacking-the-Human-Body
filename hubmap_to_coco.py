@@ -78,7 +78,7 @@ def main():
         rle_mask = whole_annotations[whole_annotations["id"]==img_name]["rle"].iloc[-1]
         organ = whole_annotations[whole_annotations["id"]==img_name]["organ"].iloc[-1]
         try:
-            mask = rle_decode(rle_mask, (img.shape[1], img.shape[0])).T
+            mask = rle_decode(rle_mask, (img.shape[1], img.shape[0]))
             c_rle = mask_util.encode(np.asfortranarray(mask))  # Encode mask back to rle - but now we have more information about mask thanks to pycocotools
         except Exception as e:
             print(img_name)
