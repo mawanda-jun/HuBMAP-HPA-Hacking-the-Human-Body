@@ -36,7 +36,7 @@ def cut_and_save(
 
                 # Save images
                 crop_configuration = [str(a) for a in crop_configuration]
-                img_name = os.path.basename(img_path).split(".")[0]
+                img_name = int(os.path.basename(img_path).split(".")[0])
                 if img_name in for_val:
                     output_img_path = os.path.join(out_val_img, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
                     output_ann_path = os.path.join(out_val_ann, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
