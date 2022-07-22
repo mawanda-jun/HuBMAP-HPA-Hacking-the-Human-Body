@@ -1,23 +1,17 @@
-import albumentations as A
-from PIL import Image
 import os
-import numpy as np
 import concurrent.futures
-import itertools
 from tqdm import tqdm
-from skimage.exposure import histogram_matching
+import staintools
+from PIL import Image
+import numpy as np
 
 
 # Retrieve example images
-stainings_path = "/home/mawanda/Documents/HuBMAP/stainings"
-ref_images = [np.asarray(Image.open(os.path.join(stainings_path, file)).convert("RGB")) for file in os.listdir(stainings_path)]
+# stainings_path = "/home/mawanda/Documents/HuBMAP/stainings"
+# ref_images = [np.asarray(Image.open(os.path.join(stainings_path, file)).convert("RGB")) for file in os.listdir(stainings_path)]
+ref_image = np.asarray(Image.open("/home/mawanda/Documents/HuBMAP/test_images/10078.tiff").convert("RGB"))
 
-matcher = A.HistogramMatching(
-            always_apply=True,
-            reference_images=ref_images,
-            blend_ratio=[0.7, 1.],
-            read_fn=lambda x: x
-)
+target = staintools.LuminosityStandardizer.standardize(ref_image) 
 
 def stain_img(input_img):
     dirname = os.path.dirname(input_img)
@@ -25,11 +19,21 @@ def stain_img(input_img):
     new_filename = filename.split(".")[0] + "_PAS.png"
     new_filepath = os.path.join(dirname, new_filename)
     if not os.path.isfile(new_filepath):
-        image = np.asarray(Image.open(input_img), dtype=np.uint8)
-        image[image>235] = 255
-        output_img = matcher(image=image)
-        # Image.fromarray(output_img).save("testme.png")
-        Image.fromarray(output_img['image']).save(new_filepath)
+        try:
+            image = np.asarray(Image.open(input_img))
+            to_transform = staintools.LuminosityStandardizer.standardize(image.copy()) # altrimenti modifica image
+            # Stain normalize
+            normalizer = staintools.StainNormalizer(method='vahadane')
+            normalizer.fit(target)
+            output_img = normalizer.transform(to_transform)
+            Image.fromarray(output_img).save(new_filepath)
+        except staintools.miscellaneous.exceptions.TissueMaskException as e:
+            print(f"Cannot find enough data in {input_img}, deleting image...")
+            os.remove(input_img)
+            ann_path = input_img.replace("img", "ann")
+            os.remove(ann_path)
+
+            
 
 
 def prepare_folders(input_dir, output_dir):
@@ -64,8 +68,8 @@ def prepare_folders(input_dir, output_dir):
                     os.link(in_path, os.path.join(out_folder, file))
 
 if "__main__" in __name__:
-    input_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_512"
-    output_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_512_w_stain"
+    input_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512"
+    output_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain"
 
     # prepare folder - hardlink of original images so they do not occupy more space
     prepare_folders(input_folder, output_folder)
@@ -78,5 +82,5 @@ if "__main__" in __name__:
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as worker:
         _ = list(tqdm(worker.map(stain_img, images), total=len(images)))
-    # for image in images:
+    # for image in tqdm(images):
         # stain_img(image)

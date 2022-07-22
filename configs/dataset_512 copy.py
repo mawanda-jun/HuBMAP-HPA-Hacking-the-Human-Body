@@ -84,16 +84,16 @@ albu_color_transforms = [
          ], p=1),
     dict(
         type='ShiftScaleRotate',
-        shift_limit=0.0625,
+        shift_limit=0.2,
         scale_limit=0.2,
-        rotate_limit=15,
+        rotate_limit=30,
         interpolation=1,
         p=0.5),
     dict(
         type='RandomBrightnessContrast',
-        brightness_limit=[0.1, 0.3],
-        contrast_limit=[0.1, 0.3],
-        p=0.2),
+        brightness_limit=[0.3],
+        contrast_limit=[0.3],
+        p=0.3),
     dict(type="RandomGamma", p=0.2),
     dict(type="CLAHE", p=0.1),
     dict(
@@ -101,33 +101,33 @@ albu_color_transforms = [
         transforms=[
             dict(
                 type='RGBShift',
-                r_shift_limit=20,
-                g_shift_limit=20,
-                b_shift_limit=20,
-                p=1.0),
+                r_shift_limit=25,
+                g_shift_limit=25,
+                b_shift_limit=25,
+                p=0.5),
             dict(
                 type='HueSaturationValue',
                 hue_shift_limit=20,
                 sat_shift_limit=30,
                 val_shift_limit=20,
-                p=1.0)
+                p=0.5)
         ],
         p=0.3),
-    # dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.2),
+    dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.2),
     dict(type='ChannelShuffle', p=0.1),
     dict(
         type='OneOf',
         transforms=[
-            dict(type='Blur', blur_limit=3, p=1.0),
-            dict(type='MedianBlur', blur_limit=3, p=1.0)
+            dict(type='Blur', blur_limit=3, p=0.5),
+            dict(type='MedianBlur', blur_limit=3, p=0.5)
         ],
         p=0.1),
     # dict(type='PadIfNeeded', min_height=512, min_width=512, p=1)
     dict(type="OneOf",
         transforms=[
-        dict(type="ElasticTransform", p=1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
-        dict(type="GridDistortion", p=1),
-        dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=1),
+        dict(type="ElasticTransform", p=0.5, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
+        dict(type="GridDistortion", p=0.5),
+        dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=0.5),
     ], p=0.3),
 ]
 

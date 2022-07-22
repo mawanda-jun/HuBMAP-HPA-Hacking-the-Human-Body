@@ -5,6 +5,49 @@ from tqdm import tqdm
 import cv2
 from rle_scripts import rle_decode
 from cropper import windows
+from itertools import repeat
+import concurrent.futures
+
+def cut_and_save(
+    img_path, 
+    rle_mask,
+    crop_configurations,
+    for_val, 
+    out_train_img, 
+    out_train_ann, 
+    out_val_img, 
+    out_val_ann
+):
+    img = cv2.imread(img_path)
+        
+    mask = rle_decode(rle_mask, (img.shape[1], img.shape[0]))
+
+    for crop_configuration in crop_configurations:
+        img_windows = windows(img.shape[0], img.shape[1], *crop_configuration)
+        for i, window in enumerate(img_windows):
+            cropped_mask = mask[
+                    window["row_off"]:window["row_off"]+window['height'],
+                    window["col_off"]:window["col_off"]+window['width']]
+            if cropped_mask.sum() > 625: # There is at least a mask of 25x25 in this window!
+                cropped_img = img[
+                    window["row_off"]:window["row_off"]+window['height'],
+                    window["col_off"]:window["col_off"]+window['width'],
+                ...]
+
+                # Save images
+                crop_configuration = [str(a) for a in crop_configuration]
+                img_name = os.path.basename(img_path).split(".")[0]
+                if img_name in for_val:
+                    output_img_path = os.path.join(out_val_img, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
+                    output_ann_path = os.path.join(out_val_ann, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
+                else:
+                    output_img_path = os.path.join(out_train_img, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
+                    output_ann_path = os.path.join(out_train_ann, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
+                
+                cv2.imwrite(output_img_path, cropped_img)
+                Image.fromarray(cropped_mask).save(output_ann_path, bits=1, optimize=True)
+                # cv2.imwrite(output_ann_path, cropped_mask)
+
 
 def main():
     crop_configurations = [
@@ -50,37 +93,34 @@ def main():
     os.makedirs(out_train_ann, exist_ok=True)
     os.makedirs(out_val_ann, exist_ok=True)
 
-    for img_name in tqdm(whole_annotations["id"], desc="Processing annotations...", total=len(whole_annotations["id"])):
-        img = cv2.imread(os.path.join(base_path, "train_images", str(img_name) + ".tiff"))
-        rle_mask = whole_annotations[whole_annotations["id"]==img_name]["rle"].iloc[-1]
-        mask = rle_decode(rle_mask, (img.shape[1], img.shape[0]))
-
-        for crop_configuration in crop_configurations:
-            for i, window in enumerate(windows(img.shape[0], img.shape[1], *crop_configuration)):
-                cropped_mask = mask[
-                        window["row_off"]:window["row_off"]+window['height'],
-                        window["col_off"]:window["col_off"]+window['width'],
-                    ...]
-                if cropped_mask.any(): # There is at least one mask in this window!
-                    cropped_img = img[
-                        window["row_off"]:window["row_off"]+window['height'],
-                        window["col_off"]:window["col_off"]+window['width'],
-                    ...]
-
-                    # Save images
-                    crop_configuration = [str(a) for a in crop_configuration]
-                    if img_name in for_val:
-                        output_img_path = os.path.join(out_val_img, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
-                        output_ann_path = os.path.join(out_val_ann, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
-                    else:
-                        output_img_path = os.path.join(out_train_img, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
-                        output_ann_path = os.path.join(out_train_ann, str(img_name) + f"__{'_'.join(crop_configuration)}__{i}.png")
-                    
-                    cv2.imwrite(output_img_path, cropped_img)
-                    Image.fromarray(cropped_mask).save(output_ann_path)
-
-                else:
-                    continue
+    img_paths = [os.path.join(base_path, "train_images", str(img_name) + ".tiff") for img_name in whole_annotations["id"]]
+    rle_masks = [whole_annotations[whole_annotations["id"]==img_name]["rle"].iloc[-1] for img_name in whole_annotations["id"]]
+    with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as worker:
+        _ = list(tqdm(
+            worker.map(
+                cut_and_save,
+                img_paths, 
+                rle_masks,
+                repeat(crop_configurations),
+                repeat(for_val), 
+                repeat(out_train_img), 
+                repeat(out_train_ann), 
+                repeat(out_val_img),
+                repeat(out_val_ann)
+        ), total=len(img_paths)))
+            
+            # for i, window in enumerate(windows(img.shape[0], img.shape[1], *crop_configuration)):
+            #     window['num'] = i
+            #     cut_and_save(
+            #         img, 
+            #         mask, 
+            #         window, 
+            #         img_name, 
+            #         for_val, 
+            #         out_train_img, 
+            #         out_train_ann, 
+            #         out_val_img,
+            #         out_val_ann)
 
 
 if "__main__" in __name__:

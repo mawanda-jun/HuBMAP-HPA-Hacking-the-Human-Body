@@ -1,5 +1,5 @@
-CONFIG_FILE=/home/mawanda/projects/HuBMAP/configs/upernet_r50_512x512_80k_ade20k.py
-WORK_DIR=/home/mawanda/Documents/HuBMAP/experiments/upernet_lovasz_coloraug_stained
+CONFIG_FILE=/home/mawanda/projects/HuBMAP/configs/segformer_mit-b2_512x512_160k_ade20k.py
+WORK_DIR=/home/mawanda/Documents/HuBMAP/experiments/segformer_lovasz_geom_multires_morecolor
 
 cd mmsegmentation
-./tools/dist_train.sh ${CONFIG_FILE} 1 --work-dir ${WORK_DIR}
+./tools/dist_train.sh ${CONFIG_FILE} 1 --work-dir ${WORK_DIR} --auto-resume

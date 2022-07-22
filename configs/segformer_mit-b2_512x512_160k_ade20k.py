@@ -31,7 +31,7 @@ model = dict(
         align_corners=False,
         loss_decode=dict(
             type='LovaszLoss', 
-            loss_type="binary", 
+            loss_type="multi_class", 
             loss_weight=1.0,
             reduction="none")
     ),
@@ -39,7 +39,11 @@ model = dict(
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))
 
-checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b2_20220624-66e8bf70.pth'  # noqa
+# fp16 settings
+optimizer_config = dict(type='Fp16OptimizerHook', loss_scale=512.)
+# fp16 placeholder
+fp16 = dict()
 
+checkpoint = 'https://download.openmmlab.com/mmsegmentation/v0.5/pretrain/segformer/mit_b2_20220624-66e8bf70.pth'  # noqa
 
 load_from="/home/mawanda/projects/HuBMAP/.cache/segformer_mit-b2_512x512_160k_ade20k_20210726_112103-cbd414ac.pth"

@@ -32,6 +32,7 @@ model = dict(
             loss_weight=1.0,
             reduction="none")
         ),
+        # loss_decode=dict(type='DiceLoss', loss_weight=1.0)),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=1024,
@@ -49,6 +50,7 @@ model = dict(
            loss_weight=0.4,
            reduction="none")
         ),
+        # loss_decode=dict(type='DiceLoss', loss_weight=0.4)),
     # model training and testing settings
     train_cfg=dict(),
     test_cfg=dict(mode='whole'))

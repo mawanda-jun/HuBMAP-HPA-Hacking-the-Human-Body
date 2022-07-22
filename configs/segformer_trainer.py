@@ -1,4 +1,4 @@
-minibatches = 534
+minibatches = 2436
 
 log_config = dict(
     interval=1,
@@ -26,16 +26,16 @@ lr_config = dict(
     policy='poly',
     warmup='linear',
     warmup_iters=minibatches,
-    warmup_ratio=1e-06,
+    warmup_ratio=1e-08,
     power=1.0,
     min_lr=0.0,
     by_epoch=False)
 
 fp16_enabled = True  # TODO: check this out!
 
-runner = dict(type='IterBasedRunner', max_iters=minibatches * 20)
-checkpoint_config = dict(by_epoch=False, interval=minibatches*2)
+runner = dict(type='IterBasedRunner', max_iters=minibatches * 10)
+checkpoint_config = dict(by_epoch=False, interval=minibatches*1)
 evaluation = dict(interval=minibatches, metric='mDice', pre_eval=True)
 
 gpu_ids = range(0, 1)
-auto_resume = False
+auto_resume = True
