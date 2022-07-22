@@ -18,7 +18,7 @@ def stain_img(input_img):
     filename = os.path.basename(input_img)
     new_filename = filename.split(".")[0] + "_PAS.png"
     new_filepath = os.path.join(dirname, new_filename)
-    if not os.path.isfile(new_filepath):
+    if not os.path.isfile(new_filepath) and "PAS" not in input_img:
         try:
             image = np.asarray(Image.open(input_img))
             to_transform = staintools.LuminosityStandardizer.standardize(image.copy()) # altrimenti modifica image
@@ -29,6 +29,11 @@ def stain_img(input_img):
             Image.fromarray(output_img).save(new_filepath)
         except staintools.miscellaneous.exceptions.TissueMaskException as e:
             print(f"Cannot find enough data in {input_img}, deleting image...")
+            os.remove(input_img)
+            ann_path = input_img.replace("img", "ann")
+            os.remove(ann_path)
+        except Exception as e:
+            print(f"Exception at {input_img}, deleting image. Exception was: {e}")
             os.remove(input_img)
             ann_path = input_img.replace("img", "ann")
             os.remove(ann_path)
