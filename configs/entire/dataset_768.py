@@ -1,71 +1,70 @@
-crop_size = (512, 512)
+crop_size = (768, 768)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
 
 albu_color_transforms = [
-    dict(type="HorizontalFlip", p=.25),
-    dict(type="VerticalFlip", p=0.25),
-    dict(type="RandomRotate90", p=0.25),
-    dict(type="Transpose", p=0.25),
-    dict(type="OneOf",
-         transforms=[
-             dict(type="RandomResizedCrop",
-                  height=crop_size[0], width=crop_size[1], scale=(0.08, 1.), p=0.7),
-             dict(type="Compose",
-                  transforms=[
-                      dict(type="PadIfNeeded",
-                           min_height=crop_size[0], min_width=crop_size[1], p=1),
-                      dict(type="CropNonEmptyMaskIfExists",
-                           height=crop_size[0], width=crop_size[1], p=1)
-                  ], p=0.3)
-         ], p=1),
+    dict(type="HorizontalFlip", p=.2),
+    dict(type="VerticalFlip", p=0.2),
+    dict(type="RandomRotate90", p=0.2),
+    dict(type="Transpose", p=0.2),
+    dict(
+        type="RandomResizedCrop",
+        height=crop_size[0],
+        width=crop_size[1],
+        scale=(0.08, 1.5),
+        always_apply=True
+    ),
     dict(
         type='ShiftScaleRotate',
-        shift_limit=0.0625,
-        scale_limit=0.0,
-        rotate_limit=0,
+        shift_limit=0.2,
+        scale_limit=0.,
+        rotate_limit=30,
         interpolation=1,
         p=0.5),
-    # dict(
-    #     type='RandomBrightnessContrast',
-    #     brightness_limit=[0.1, 0.3],
-    #     contrast_limit=[0.1, 0.3],
-    #     p=0.2),
     # dict(type="RandomGamma", p=0.2),
     # dict(type="CLAHE", p=0.1),
-    # dict(
-    #     type='OneOf',
-    #     transforms=[
-    #         dict(
-    #             type='RGBShift',
-    #             r_shift_limit=20,
-    #             g_shift_limit=20,
-    #             b_shift_limit=20,
-    #             p=1.0),
-    #         dict(
-    #             type='HueSaturationValue',
-    #             hue_shift_limit=20,
-    #             sat_shift_limit=30,
-    #             val_shift_limit=20,
-    #             p=1.0)
-    #     ],
-    #     p=0.3),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(
+                type='RGBShift',
+                r_shift_limit=25,
+                g_shift_limit=25,
+                b_shift_limit=25,
+                p=0.2),
+            dict(
+                type='HueSaturationValue',
+                hue_shift_limit=20,
+                sat_shift_limit=30,
+                val_shift_limit=20,
+                p=0.3),
+            dict(type="ToGray", p=0.3),
+            dict(
+                type='RandomBrightnessContrast',
+                brightness_limit=[0.1, 0.3],
+                contrast_limit=[0.1, 0.3],
+                p=0.2),
+        ],
+        p=0.3),
     # dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.2),
     # dict(type='ChannelShuffle', p=0.1),
     # dict(
     #     type='OneOf',
     #     transforms=[
-    #         dict(type='Blur', blur_limit=3, p=1.0),
-    #         dict(type='MedianBlur', blur_limit=3, p=1.0)
+    #         dict(type='Blur', blur_limit=3, p=0.5),
+    #         dict(type='MedianBlur', blur_limit=3, p=0.5)
     #     ],
     #     p=0.1),
+    dict(type='GaussianBlur', p=0.1),
     # dict(type='PadIfNeeded', min_height=512, min_width=512, p=1)
-    # dict(type="OneOf",
-    #     transforms=[
-    #     dict(type="ElasticTransform", p=1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
-    #     dict(type="GridDistortion", p=1),
-    #     dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=1),
-    # ], p=0.3),
+    dict(type="OneOf",
+         transforms=[
+             dict(type="ElasticTransform", p=0.5, alpha=120,
+                  sigma=120 * 0.05, alpha_affine=120 * 0.03),
+             dict(type="GridDistortion", p=0.5),
+             dict(type="OpticalDistortion",
+                  distort_limit=1, shift_limit=0.5, p=0.5),
+         ], p=0.2),
 ]
 
 # Pipelines
@@ -104,7 +103,22 @@ val_pipeline = [
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_semantic_seg'])
 ]
-
+# test_pipeline = [
+#     dict(type='LoadImageFromFile'),
+#     dict(type='Resize', img_scale=(2048, 1024)),
+#     # dict(type="RandomMosaic", prob=0.5, img_scale=(2048, 2048)),
+#     # dict(type='RandomCrop', crop_size=(1024, 1024), cat_max_ratio=0.75),
+#     # dict(type='RandomRotate', prob=0.5, degree=(0, 180)),
+#     # dict(type='RandomFlip', prob=0.5, direction='horizontal'),
+#     # dict(type='RandomFlip', prob=0.5, direction='vertical'),
+#     # dict(type="RandomCutOut", prob=0.5, n_holes=(1, 10), cutout_shape=(0, 3)),
+#     # dict(type='PhotoMetricDistortion'),
+#     dict(type='Normalize', **img_norm_cfg),
+#     # dict(type='Pad', size=(1024, 1024), pad_val=0, seg_pad_val=255),
+#     # dict(type='ImageToTensor', keys=['img']),
+#     dict(type='DefaultFormatBundle'),
+#     dict(type='Collect', keys=['img'])
+# ]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
@@ -124,14 +138,13 @@ test_pipeline = [
 
 # Define datasets
 dataset_type = 'CustomDataset'
-data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_inverted'
-# data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512'
+data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_6000_w_stain_inverted'
 # data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_512'
 classes = ('organ', )
 
 data = dict(
-    samples_per_gpu=30,
-    workers_per_gpu=12,
+    samples_per_gpu=8,
+    workers_per_gpu=8,
     # train=dict(
     #     type=dataset_type,
     #     data_root=data_root,

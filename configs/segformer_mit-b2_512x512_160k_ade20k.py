@@ -1,4 +1,7 @@
-_base_ = ['./dataset_512.py', './segformer_trainer.py']
+_base_ = [
+    # './progressive/0_dataset_noaug.py', 
+    './segformer_trainer.py'
+]
 
 # model settings
 norm_cfg = dict(type='SyncBN', requires_grad=True)
@@ -40,7 +43,7 @@ model = dict(
     test_cfg=dict(mode='whole'))
 
 # fp16 settings
-optimizer_config = dict(type='Fp16OptimizerHook', loss_scale=512.)
+optimizer_config = dict(type='Fp16OptimizerHook', loss_scale='dynamic')
 # fp16 placeholder
 fp16 = dict()
 

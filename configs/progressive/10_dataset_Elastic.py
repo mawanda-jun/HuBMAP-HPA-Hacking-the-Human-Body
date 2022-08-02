@@ -1,3 +1,5 @@
+_base_ = ['../segformer_mit-b2_512x512_160k_ade20k.py']
+
 crop_size = (512, 512)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
@@ -7,18 +9,7 @@ albu_color_transforms = [
     dict(type="VerticalFlip", p=0.25),
     dict(type="RandomRotate90", p=0.25),
     dict(type="Transpose", p=0.25),
-    dict(type="OneOf",
-         transforms=[
-             dict(type="RandomResizedCrop",
-                  height=crop_size[0], width=crop_size[1], scale=(0.08, 1.), p=0.7),
-             dict(type="Compose",
-                  transforms=[
-                      dict(type="PadIfNeeded",
-                           min_height=crop_size[0], min_width=crop_size[1], p=1),
-                      dict(type="CropNonEmptyMaskIfExists",
-                           height=crop_size[0], width=crop_size[1], p=1)
-                  ], p=0.3)
-         ], p=1),
+    dict(type="RandomResizedCrop", height=crop_size[0], width=crop_size[1], scale=(0.08, 2.), p=1.),
     dict(
         type='ShiftScaleRotate',
         shift_limit=0.0625,
@@ -62,7 +53,7 @@ albu_color_transforms = [
     # dict(type='PadIfNeeded', min_height=512, min_width=512, p=1)
     # dict(type="OneOf",
     #     transforms=[
-    #     dict(type="ElasticTransform", p=1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
+    dict(type="ElasticTransform", p=.5, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
     #     dict(type="GridDistortion", p=1),
     #     dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=1),
     # ], p=0.3),
