@@ -90,8 +90,8 @@ def run(base_path: Path, config_path: Path):
     # Save png format for fiftyone visualization
     out_train_img = output_dir / "img_dir" / "train" / "organ"
     out_val_img = output_dir / "img_dir" / "val" / "organ"
-    out_train_ann = output_dir / "img_dir" / "train" / "organ"
-    out_val_ann = output_dir / "img_dir" / "val" / "organ"
+    out_train_ann = output_dir / "ann_dir" / "train" / "organ"
+    out_val_ann = output_dir / "ann_dir" / "val" / "organ"
 
     os.makedirs(out_train_img, exist_ok=True)
     os.makedirs(out_val_img, exist_ok=True)
