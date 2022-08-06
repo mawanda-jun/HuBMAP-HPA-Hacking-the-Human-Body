@@ -1,17 +1,18 @@
-import os
 import concurrent.futures
-from tqdm import tqdm
+import os
+
+import numpy as np
 import staintools
 from PIL import Image
-import numpy as np
-
+from tqdm import tqdm
 
 # Retrieve example images
 # stainings_path = "/home/mawanda/Documents/HuBMAP/stainings"
 # ref_images = [np.asarray(Image.open(os.path.join(stainings_path, file)).convert("RGB")) for file in os.listdir(stainings_path)]
 ref_image = np.asarray(Image.open("/home/mawanda/Documents/HuBMAP/test_images/10078.tiff").convert("RGB"))
 
-target = staintools.LuminosityStandardizer.standardize(ref_image) 
+target = staintools.LuminosityStandardizer.standardize(ref_image)
+
 
 def stain_img(input_img):
     dirname = os.path.dirname(input_img)
@@ -21,7 +22,7 @@ def stain_img(input_img):
     if not os.path.isfile(new_filepath) and "PAS" not in input_img:
         try:
             image = np.asarray(Image.open(input_img))
-            to_transform = staintools.LuminosityStandardizer.standardize(image.copy()) # altrimenti modifica image
+            to_transform = staintools.LuminosityStandardizer.standardize(image.copy())  # altrimenti modifica image
             # Stain normalize
             normalizer = staintools.StainNormalizer(method='vahadane')
             normalizer.fit(target)
@@ -38,6 +39,7 @@ def stain_img(input_img):
             ann_path = input_img.replace("img", "ann")
             os.remove(ann_path)
 
+
 def prepare_folders(input_dir, output_dir):
     in_train_img = os.path.join(input_dir, "img_dir", "train", "organ")
     in_val_img = os.path.join(input_dir, "img_dir", "val", "organ")
@@ -48,7 +50,7 @@ def prepare_folders(input_dir, output_dir):
     out_val_img = os.path.join(output_dir, "img_dir", "val", "organ")
     out_train_ann = os.path.join(output_dir, "ann_dir", "train", "organ")
     out_val_ann = os.path.join(output_dir, "ann_dir", "val", "organ")
-    
+
     ins = [in_train_img, in_val_img, in_train_ann, in_val_ann]
     outs = [out_train_img, out_val_img, out_train_ann, out_val_ann]
 
@@ -69,6 +71,7 @@ def prepare_folders(input_dir, output_dir):
                 if not os.path.isfile(out_path):
                     os.link(in_path, os.path.join(out_folder, file))
 
+
 if "__main__" in __name__:
     input_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512"
     output_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain"
@@ -85,4 +88,4 @@ if "__main__" in __name__:
     with concurrent.futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as worker:
         _ = list(tqdm(worker.map(stain_img, images), total=len(images)))
     # for image in tqdm(images):
-        # stain_img(image)
+    # stain_img(image)

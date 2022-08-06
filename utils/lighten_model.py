@@ -1,6 +1,8 @@
-import os
 import argparse
+import os
+
 import torch
+
 
 def main(ckpt_path):
     dirname = os.path.dirname(ckpt_path).split(os.sep)[-1]
@@ -14,9 +16,9 @@ def main(ckpt_path):
     new_path = os.path.join(os.path.dirname(ckpt_path), f"{mode}_{model}_{iter}_{aug}.pth")
     torch.save(ckpt, new_path)
 
+
 if "__main__" in __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument("--path")
     args = parser.parse_args()
     main(args.path)
-    

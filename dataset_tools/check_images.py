@@ -23,7 +23,7 @@ def check_img(in_path):
 def move_to_val(in_path):
     img_id = int(os.path.basename(in_path).split("_")[0])
 
-    config_path: Path = Path("dataset_tools/ade20k_config.yml")
+    config_path: Path = Path("ade20k_config.yml")
     validation_images = load_validation_images(config_path)
 
     if img_id in validation_images:
