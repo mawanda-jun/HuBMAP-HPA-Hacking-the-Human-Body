@@ -1,6 +1,6 @@
 import numpy as np
 from rle_scripts import rle_encode, rle_decode
-from cropper import windows
+from cropper import get_windows
 from tqdm import tqdm
 
 # mmsegmentation install confirmation
@@ -32,7 +32,7 @@ for img_path, ori_mask_path in zip(imgs, anns):
     ori_mask = np.asarray(Image.open(ori_mask_path))
 
     mask = np.zeros((img.shape[0], img.shape[1]))
-    for window in tqdm(windows(img.shape[0], img.shape[1], 512, 512, 384, 384)):
+    for window in tqdm(get_windows(img.shape[0], img.shape[1], 512, 512, 384, 384)):
         result = inference_segmentor(model, img[
             window['row_off']:window['row_off']+window['height'],
             window['col_off']:window['col_off']+window['width'],

@@ -9,8 +9,9 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-from cropper import windows
+from cropper import get_windows
 from rle_scripts import rle_decode
+from utils.shared_functions import load_validation_images
 from utils.generic_functions import load_yaml
 import argparse
 
@@ -30,7 +31,7 @@ def cut_and_save(
     mask = rle_decode(rle_mask, (img.shape[1], img.shape[0]))
 
     for crop_configuration in crop_configurations:
-        img_windows = windows(img.shape[0], img.shape[1], *crop_configuration)
+        img_windows = get_windows(img.shape[0], img.shape[1], *crop_configuration)
         for i, window in enumerate(img_windows):
             cropped_mask = mask[
                            window["row_off"]:window["row_off"] + window['height'],
@@ -62,17 +63,10 @@ def cut_and_save(
 
 def run(base_path: Path, config_path: Path):
     config: Dict = load_yaml(config_path)
-
     crop_configurations = config["crop_configurations"]
 
-    # Keep some images for validation. I've selected those by looking 
-    kidney = config["kidney"]
-    prostate = config["prostate"]
-    largeintestine = config["largeintestine"]
-    spleen = config["spleen"]
-    lung = config["lung"]
-
-    validation_images = [*kidney, *prostate, *largeintestine, *spleen, *lung]
+    # Keep some images for validation. I've selected those by looking
+    validation_images = load_validation_images(config_path)
 
     if len(crop_configurations) > 1:
         output_dir = base_path / f'for_mmdetection_multires_{crop_configurations[0][0]}'
