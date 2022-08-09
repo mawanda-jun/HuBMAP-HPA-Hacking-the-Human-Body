@@ -8,7 +8,7 @@ from pycocotools import mask as mask_util
 import cv2
 import json
 import numpy as np
-from rle_scripts import rle_decode, rle_encode
+from dataset_tools.rle_scripts import rle_decode, rle_encode
 
 organs_to_id = {
     'kidney': 0,

@@ -12,26 +12,29 @@ from PIL import Image
 
 import os
 
-config_file = "/home/mawanda/Documents/HuBMAP/experiments/upernet_mosaic/upernet_r50_512x512_80k_ade20k.py"
-checkpoint_file = "/home/mawanda/Documents/HuBMAP/experiments/upernet_color_aug_stained/iter_2136.pth"
+config_file = "/home/mawanda/Documents/HuBMAP/experiments/progressive_resized/1_inverted_segformer_RandomResizedCrop/1_dataset_RandomResizedCrop.py"
+checkpoint_file = "/home/mawanda/Documents/HuBMAP/experiments/progressive_resized/1_inverted_segformer_RandomResizedCrop/iter_4182.pth"
 
 # build the model from a config file and a checkpoint file
 model = init_segmentor(config_file, checkpoint_file, device='cuda:0')
 
 imgs = [
-    # "/home/mawanda/Documents/HuBMAP/for_mmdetection/img_dir/val/organ/8227.png"
-    "/home/mawanda/projects/HuBMAP/testme.png"
+    "/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_6000_inverted/img_dir/val/organ/5086__6000_6000_6000_6000__0.png"
 ]
 anns = [
-    "/home/mawanda/Documents/HuBMAP/for_mmdetection/ann_dir/val/organ/8227.png"
+    "/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_6000_inverted/ann_dir/val/organ/5086__6000_6000_6000_6000__0.png"
 ]
 
 names, preds = [], []
 for img_path, ori_mask_path in zip(imgs, anns):
     img = np.asarray(Image.open(img_path))
+    if "inverted" in img_path:
+        img = 255 - img
     ori_mask = np.asarray(Image.open(ori_mask_path))
 
     mask = np.zeros((img.shape[0], img.shape[1]))
+    counter = np.zeros_like(mask)
+
     for window in tqdm(get_windows(img.shape[0], img.shape[1], 512, 512, 384, 384)):
         result = inference_segmentor(model, img[
             window['row_off']:window['row_off']+window['height'],
@@ -43,10 +46,21 @@ for img_path, ori_mask_path in zip(imgs, anns):
             window['row_off']:window['row_off']+window['height'],
             window['col_off']:window['col_off']+window['width']
         ] += part_mask
-    mask = mask.clip(0, 1)
+        counter[
+            window['row_off']:window['row_off']+window['height'],
+            window['col_off']:window['col_off']+window['width']
+        ] += 1
+    
+    good_indexes = mask/counter > 0.75
+    mask = np.zeros_like(mask)
+    mask[good_indexes] = 1
+    # mask = mask.clip(0, 1)
 
-    assert np.array_equal(mask, rle_decode(rle_encode(mask), shape=(mask.shape[0], mask.shape[1])))
+    assert np.array_equal(mask, rle_decode(
+        rle_encode(mask), shape=(mask.shape[0], mask.shape[1])))
 
-    # model.show_result(img_path, [ori_mask], out_file="original.jpg", opacity=0.5)
-    # model.show_result(img_path, [mask], out_file="inferred_stained.jpg", opacity=0.5)
-    model.show_result("/home/mawanda/Documents/HuBMAP/for_mmdetection/img_dir/val/organ/8227.png", [mask], out_file="inferred_stained_from_PAS.jpg", opacity=0.5)
+    model.show_result(img_path, [ori_mask],
+                      out_file="original.jpg", opacity=0.5)
+    model.show_result(img_path, [mask],
+                      out_file="inferred.jpg", opacity=0.5)
+    # model.show_result("/home/mawanda/Documents/HuBMAP/for_mmdetection/img_dir/val/organ/8227.png", [mask], out_file="inferred_stained_from_PAS.jpg", opacity=0.5)
