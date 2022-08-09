@@ -1,4 +1,4 @@
-minibatches = 2367
+minibatches = 697
 
 log_config = dict(
     interval=1,
@@ -31,9 +31,9 @@ lr_config = dict(
     min_lr=0.0,
     by_epoch=False)
 
-runner = dict(type='IterBasedRunner', max_iters=minibatches * 10)
-checkpoint_config = dict(by_epoch=False, interval=minibatches*2)
-evaluation = dict(interval=minibatches, metric='mDice', pre_eval=True)
+runner = dict(type='IterBasedRunner', max_iters=minibatches * 30)
+checkpoint_config = dict(by_epoch=False, interval=minibatches *3)
+evaluation = dict(interval=minibatches*3, metric='mDice', pre_eval=True)
 
 gpu_ids = range(0, 1)
 auto_resume = False
