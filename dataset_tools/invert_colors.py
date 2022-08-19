@@ -44,8 +44,9 @@ def prepare_folder(input_dir, output_dir):
 
 
 if "__main__" in __name__:
+    folder_path = "/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_5000_w_stain"
     prepare_folder(
-        "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain",
-        "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain_inverted"
+        folder_path,
+        folder_path + "_inverted"
     )
     

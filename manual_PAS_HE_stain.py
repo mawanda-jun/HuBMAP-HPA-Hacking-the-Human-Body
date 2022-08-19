@@ -73,8 +73,8 @@ def prepare_folders(input_dir, output_dir):
 
 
 if "__main__" in __name__:
-    input_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512"
-    output_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512_w_stain"
+    input_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_5000"
+    output_folder = "/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_5000_w_stain"
 
     # prepare folder - hardlink of original images so they do not occupy more space
     prepare_folders(input_folder, output_folder)

@@ -32,9 +32,9 @@ def cut_and_save(
     # Resize image to given shape
     if scale_factor is not None:
         img_shape = img.shape
-        dest_shape = [int(round(img_shape[0]*scale_factor)), int(round(img_shape[1]*scale_factor))]
+        dest_shape = [int(round(img_shape[1]*scale_factor)), int(round(img_shape[0]*scale_factor))]
         # Resize to 1536 so there are at maximum 9 tiles per image when dealing with 512x512
-        dest_shape = [min(1536, dest_shape[0]), min(1536, dest_shape[1])]
+        dest_shape = [min(1536, dest_shape[1]), min(1536, dest_shape[0])]
 
         img = cv2.resize(img, dest_shape, interpolation=cv2.INTER_LANCZOS4)
         mask = cv2.resize(mask, dest_shape, interpolation=cv2.INTER_LANCZOS4)
@@ -43,7 +43,7 @@ def cut_and_save(
         img_windows = get_windows(img.shape[0], img.shape[1], *crop_configuration)
         # Augment total number of images when dealing with little ones
         # 2 is picked since the smallest class is already over represented
-        if len(img_windows) < 2:
+        if len(img_windows) < 2 and len(crop_configurations) > 1:
             img_windows *= 2
         for i, window in enumerate(img_windows):
             cropped_mask = mask[
