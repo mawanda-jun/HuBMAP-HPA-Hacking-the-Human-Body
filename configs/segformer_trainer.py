@@ -1,22 +1,25 @@
-# minibatches = 697  # Resize at 1536
-# minibatches = 399  # resize at 1024
-# minibatches = 10  # resize at 6000
-minibatches = 24  # entire, b5
+num_images = 316
+real_batch_size = 64
+batch_size = 4
+cumulative_iters = max(real_batch_size // batch_size, 1)
+minibatches = num_images // batch_size 
+
 
 log_config = dict(
-    interval=1,
+    interval=10,
+    by_epoch=False,
     hooks=[
-        dict(type='TextLoggerHook', by_epoch=True),
+        dict(type='TextLoggerHook'),
         dict(type='TensorboardLoggerHook')
     ])
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 resume_from = None
-workflow = [('train', minibatches*3), ('val', 1)]
+workflow = [('train', 3), ('val', 1)]
 cudnn_benchmark = True
 optimizer = dict(
     type='AdamW',
-    lr=3e-5,
+    lr=1e-4,
     betas=(0.9, 0.999),
     weight_decay=0.01,
     paramwise_cfg=dict(
@@ -42,13 +45,21 @@ lr_config = dict(
       min_lr_ratio=1e-7)
 
 runner = dict(type='IterBasedRunner', max_iters=minibatches * 240)
-checkpoint_config = dict(by_epoch=False, interval=minibatches * 6)
-evaluation = dict(interval=minibatches*6, metric='mDice', pre_eval=True)
+checkpoint_config = dict(by_epoch=False, interval=minibatches * 3)
+evaluation = dict(interval=minibatches*3, metric='mDice', pre_eval=True)
 
 gpu_ids = range(0, 1)
 auto_resume = False
 
+# fp16 settings
+optimizer_config = dict(
+    type='GradientCumulativeFp16OptimizerHook', 
+    # type='GradientCumulativeOptimizerHook', 
+    loss_scale='dynamic',
+    cumulative_iters=cumulative_iters
+)
+
 data = dict(
-    samples_per_gpu=13,
+    samples_per_gpu=batch_size,
     workers_per_gpu=12
 )

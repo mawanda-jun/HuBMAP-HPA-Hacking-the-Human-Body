@@ -1,6 +1,6 @@
-_base_ = ['../segformer_mit-b5_512x512_160k_ade20k.py']
+_base_ = ['../segformer_mit-b2_1024x1024.py']
 
-crop_size = (512, 512)
+crop_size = (1024, 1024)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
 
@@ -17,22 +17,22 @@ albu_color_transforms = [
         rotate_limit=20,
         interpolation=1,
         p=0.5),
-    # dict(
-    #     type='RandomBrightnessContrast',
-    #     brightness_limit=[0.1, 0.3],
-    #     contrast_limit=[0.1, 0.3],
-    #     p=0.2),
+    dict(
+        type='RandomBrightnessContrast',
+        brightness_limit=[0.1, 0.3],
+        contrast_limit=[0.1, 0.3],
+        p=0.5),
     # dict(type="RandomGamma", p=0.2),
     # dict(type="CLAHE", p=0.1),
     # dict(
     #     type='OneOf',
     #     transforms=[
-    dict(
-        type='RGBShift',
-        r_shift_limit=20,
-        g_shift_limit=20,
-        b_shift_limit=20,
-        p=.5),
+    #         dict(
+    #             type='RGBShift',
+    #             r_shift_limit=20,
+    #             g_shift_limit=20,
+    #             b_shift_limit=20,
+    #             p=1.0),
     #         dict(
     #             type='HueSaturationValue',
     #             hue_shift_limit=20,

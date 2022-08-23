@@ -27,7 +27,8 @@ def main(
     ann_test_folder,
     config_file,
     checkpoint_file,
-    cat_config
+    cat_config,
+    device
 ):
     categories = ["kidney", "prostate", "largeintestine", "spleen", "lung"]
     cat_config_reversed = {}
@@ -38,7 +39,7 @@ def main(
     per_category_mdice = {k: 0. for k in categories}
 
     # build the model from a config file and a checkpoint file
-    model = init_segmentor(str(config_file), str(checkpoint_file), device='cuda')
+    model = init_segmentor(str(config_file), str(checkpoint_file), device=device)
 
     files = [file for file in os.listdir(img_test_folder)]
     files_categories = [cat_config_reversed[int(file.split("__")[0])] for file in files]
@@ -48,12 +49,9 @@ def main(
     mdice = 0.
     for img_path, ori_mask_path, category in tqdm(zip(images, annotations, files_categories), desc=os.path.basename(checkpoint_file)):
         img = cv2.imread(img_path)
-        if "inverted" in img_path:
-            img = 255 - img
         ori_mask = np.asarray(Image.open(ori_mask_path))
 
         mask = np.zeros((img.shape[0], img.shape[1]))
-        counter = np.zeros_like(mask)
         mask = inference_segmentor(model, img)[0]
         # for window in get_windows(img.shape[0], img.shape[1], 512, 512, 384, 384):
         #     result = inference_segmentor(model, img[
@@ -88,6 +86,7 @@ def main(
 if "__main__" in __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument("--path")
+    parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     base_path = Path(args.path)
     # base_path = Path("/home/mawanda/Documents/HuBMAP/experiments/progressive_resized_entire/4_inverted_segformer_HueSaturation")
@@ -112,7 +111,8 @@ if "__main__" in __name__:
             ann_test_folder,
             config_file,
             base_path / checkpoint_file,
-            cat_config
+            cat_config,
+            args.device
         )
         writer.add_scalars("test/mDice", epoch_mdice, int(checkpoint_file.split("_")[1].split(".")[0]))
         writer.flush()

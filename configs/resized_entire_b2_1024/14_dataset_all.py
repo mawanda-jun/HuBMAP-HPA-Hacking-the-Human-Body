@@ -1,6 +1,6 @@
-_base_ = ['../segformer_mit-b5_512x512_160k_ade20k.py']
+_base_ = ['../segformer_mit-b2_1024x1024.py']
 
-crop_size = (512, 512)
+crop_size = (1024, 1024)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
 
@@ -10,6 +10,7 @@ albu_color_transforms = [
     dict(type="RandomRotate90", p=0.25),
     dict(type="Transpose", p=0.25),
     dict(type="RandomResizedCrop", height=crop_size[0], width=crop_size[1], scale=(0.8, 1.0), p=1.),
+    # dict(type="Resize", height=crop_size[0], width=crop_size[1], p=1.),
     dict(
         type='ShiftScaleRotate',
         shift_limit=0.2,
@@ -17,45 +18,45 @@ albu_color_transforms = [
         rotate_limit=20,
         interpolation=1,
         p=0.5),
-    # dict(
-    #     type='RandomBrightnessContrast',
-    #     brightness_limit=[0.1, 0.3],
-    #     contrast_limit=[0.1, 0.3],
-    #     p=0.2),
-    # dict(type="RandomGamma", p=0.2),
-    # dict(type="CLAHE", p=0.1),
+    dict(
+        type='RandomBrightnessContrast',
+        brightness_limit=[0.1, 0.3],
+        contrast_limit=[0.1, 0.3],
+        p=0.1),
+    dict(type="RandomGamma", p=0.1),
+    dict(type="CLAHE", p=0.4),
     # dict(
     #     type='OneOf',
     #     transforms=[
-    #         dict(
-    #             type='RGBShift',
-    #             r_shift_limit=20,
-    #             g_shift_limit=20,
-    #             b_shift_limit=20,
-    #             p=1.0),
-    #         dict(
-    #             type='HueSaturationValue',
-    #             hue_shift_limit=20,
-    #             sat_shift_limit=30,
-    #             val_shift_limit=20,
-    #             p=1.0)
+    dict(
+        type='RGBShift',
+        r_shift_limit=20,
+        g_shift_limit=20,
+        b_shift_limit=20,
+        p=0.4),
+    dict(
+        type='HueSaturationValue',
+        hue_shift_limit=20,
+        sat_shift_limit=30,
+        val_shift_limit=20,
+        p=0.2),
     #     ],
     #     p=0.3),
     # dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.2),
-    dict(type='ChannelShuffle', p=0.5),
-    # dict(
-    #     type='OneOf',
-    #     transforms=[
-    #         dict(type='Blur', blur_limit=3, p=1.0),
-    #         dict(type='MedianBlur', blur_limit=3, p=1.0)
-    #     ],
-    #     p=0.1),
+    dict(type='ChannelShuffle', p=0.1),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='Blur', blur_limit=3, p=1.0),
+            dict(type='MedianBlur', blur_limit=3, p=1.0)
+        ],
+        p=0.1),
     # dict(type='PadIfNeeded', min_height=512, min_width=512, p=1)
     # dict(type="OneOf",
     #     transforms=[
-    #     dict(type="ElasticTransform", p=1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
-    #     dict(type="GridDistortion", p=1),
-    #     dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=1),
+    dict(type="ElasticTransform", p=.1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
+    dict(type="GridDistortion", p=.1),
+    dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=0.3),
     # ], p=0.3),
 ]
 
@@ -115,6 +116,7 @@ test_pipeline = [
 
 # Define datasets
 dataset_type = 'CustomDataset'
+# data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_5000_inverted'
 data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_resized_5000_inverted'
 # data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_multires_512'
 # data_root = '/home/mawanda/Documents/HuBMAP/for_mmdetection_512'

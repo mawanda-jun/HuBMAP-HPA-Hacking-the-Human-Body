@@ -1,6 +1,6 @@
-_base_ = ['../segformer_mit-b5_512x512_160k_ade20k.py']
+_base_ = ['../segformer_mit-b2_1024x1024.py']
 
-crop_size = (512, 512)
+crop_size = (1024, 1024)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
 
@@ -22,7 +22,7 @@ albu_color_transforms = [
     #     brightness_limit=[0.1, 0.3],
     #     contrast_limit=[0.1, 0.3],
     #     p=0.2),
-    dict(type="RandomGamma", p=0.5),
+    # dict(type="RandomGamma", p=0.2),
     # dict(type="CLAHE", p=0.1),
     # dict(
     #     type='OneOf',
@@ -41,7 +41,7 @@ albu_color_transforms = [
     #             p=1.0)
     #     ],
     #     p=0.3),
-    # dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.2),
+    dict(type='ImageCompression', quality_lower=85, quality_upper=95, p=0.5),
     # dict(type='ChannelShuffle', p=0.1),
     # dict(
     #     type='OneOf',

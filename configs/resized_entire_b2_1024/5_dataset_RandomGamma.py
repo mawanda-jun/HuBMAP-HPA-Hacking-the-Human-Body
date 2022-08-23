@@ -1,6 +1,6 @@
-_base_ = ['../segformer_mit-b5_512x512_160k_ade20k.py']
+_base_ = ['../segformer_mit-b2_1024x1024.py']
 
-crop_size = (512, 512)
+crop_size = (1024, 1024)
 img_norm_cfg = dict(mean=[123.675, 116.28, 103.53], std=[
                     58.395, 57.12, 57.375], to_rgb=True)
 
@@ -22,7 +22,7 @@ albu_color_transforms = [
     #     brightness_limit=[0.1, 0.3],
     #     contrast_limit=[0.1, 0.3],
     #     p=0.2),
-    # dict(type="RandomGamma", p=0.2),
+    dict(type="RandomGamma", p=0.5),
     # dict(type="CLAHE", p=0.1),
     # dict(
     #     type='OneOf',
@@ -53,8 +53,8 @@ albu_color_transforms = [
     # dict(type='PadIfNeeded', min_height=512, min_width=512, p=1)
     # dict(type="OneOf",
     #     transforms=[
-    # dict(type="ElasticTransform", p=.5, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
-        dict(type="GridDistortion", p=.5),
+    #     dict(type="ElasticTransform", p=1, alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03),
+    #     dict(type="GridDistortion", p=1),
     #     dict(type="OpticalDistortion", distort_limit=1, shift_limit=0.5, p=1),
     # ], p=0.3),
 ]
